@@ -1,44 +1,116 @@
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { useContext } from "react";
+import { AuthContext } from "./context/AuthContext";
+
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
-import Login from "./Pages/Login";
-import Home from "./Pages/Home";
-import SingnUp from "./Pages/SingnUp";
+
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import SignUp from "./pages/SignUp";
+import Profile from "./pages/Profile";
+import CreatePost from "./pages/CreatePost";
+import EditPost from "./pages/EditPost";
+import PostDetails from "./pages/PostDetails";
+import Admin from "./pages/Admin";
+
+// Layout wrapper for authenticated pages
+const MainLayout = ({ children }) => {
+  return (
+    <div className="min-h-screen bg-gray-100">
+      <Navbar />
+
+      <div className="max-w-7xl mx-auto px-4 py-6 grid grid-cols-12 gap-6">
+        {/* Sidebar */}
+        <div className="hidden md:block md:col-span-3">
+          <Sidebar />
+        </div>
+
+        {/* Main content */}
+        <div className="col-span-12 md:col-span-9">{children}</div>
+      </div>
+    </div>
+  );
+};
 
 const App = () => {
-  const location = useLocation();
+  const { user, loading } = useContext(AuthContext);
 
-  // hide layout on login page
-  const hideLayout = location.pathname === "/login" || location.pathname === "/register";
+  if (loading) return <p className="text-center mt-10">Loading...</p>;
 
   return (
-    <div className="h-screen w-screen">
-      {!hideLayout && <Navbar />}
+    <Routes>
+      {/* Public Routes */}
+      <Route
+        path="/login"
+        element={!user ? <Login /> : <Navigate to="/" />}
+      />
+      <Route
+        path="/register"
+        element={!user ? <SignUp /> : <Navigate to="/" />}
+      />
 
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<SingnUp />} />
+      {/* Protected Routes */}
+      {user && (
+        <>
+          <Route
+            path="/"
+            element={
+              <MainLayout>
+                <Home />
+              </MainLayout>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <MainLayout>
+                <Profile />
+              </MainLayout>
+            }
+          />
+          <Route
+            path="/create"
+            element={
+              <MainLayout>
+                <CreatePost />
+              </MainLayout>
+            }
+          />
+          <Route
+            path="/edit/:id"
+            element={
+              <MainLayout>
+                <EditPost />
+              </MainLayout>
+            }
+          />
+          <Route
+            path="/post/:id"
+            element={
+              <MainLayout>
+                <PostDetails />
+              </MainLayout>
+            }
+          />
 
-      
+          {/* Admin-only route */}
+          {user.role === "admin" && (
+            <Route
+              path="/admin"
+              element={
+                <MainLayout>
+                  <Admin />
+                </MainLayout>
+              }
+            />
+          )}
+        </>
+      )}
 
-        {/* Main layout routes */}
-        <Route
-          path="/*"
-          element={
-            !hideLayout && (
-              <div className="flex h-[90vh] p-6 gap-6">
-                <div className="w-[22%] border shadow rounded p-4">
-                  <Sidebar />
-                </div>
-                <div className="flex-1 border shadow rounded p-4">
-                  <Home />
-                </div>
-              </div>
-            )
-          }
-        />
-      </Routes>
-    </div>
+      {/* Catch-all */}
+      <Route path="*" element={<Navigate to={user ? "/" : "/login"} />} />
+    </Routes>
   );
 };
 
