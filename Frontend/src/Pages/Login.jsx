@@ -16,7 +16,7 @@ export default function Login() {
     if (!res.success) {
       alert(res.message);
     } else {
-      navigate("/"); // Redirect to Home (main layout) after login
+    
     }
   };
 

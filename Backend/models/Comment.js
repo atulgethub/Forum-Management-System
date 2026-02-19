@@ -1,22 +1,13 @@
-const mongoose = require('mongoose');
+// models/Comment.js
+const mongoose = require("mongoose");
 
-const CommentSchema = new mongoose.Schema({
-  text: { 
-    type: String, 
-    required: [true, 'Comment text is required'],
-    trim: true,
-    maxlength: 500
+const CommentSchema = new mongoose.Schema(
+  {
+    postId: { type: mongoose.Schema.Types.ObjectId, ref: "Post", required: true },
+    author: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, // 👈 must have author
+    text: { type: String, required: true },
   },
-  postId: { 
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: 'Post', 
-    required: true 
-  },
-  author: { 
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: 'User', 
-    required: true 
-  },
-}, { timestamps: true });
+  { timestamps: true }
+);
 
-module.exports = mongoose.model('Comment', CommentSchema);
+module.exports = mongoose.model("Comment", CommentSchema);

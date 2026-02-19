@@ -12,7 +12,8 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-6xl mx-auto px-4 py-8 space-y-6">
+
       <h1 className="text-3xl font-bold text-gray-800 mb-6">Latest Posts</h1>
 
       {posts.length === 0 ? (

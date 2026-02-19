@@ -3,12 +3,25 @@ import { AuthContext } from "../context/AuthContext";
 
 export default function SignUp() {
   const { register } = useContext(AuthContext);
-  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  
+  // Add role field (default 'user')
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    role: "user", // default role
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Call register from context
     const res = await register(form);
-    if (!res.success) alert(res.message);
+    if (!res.success) {
+      alert(res.message);
+    } else {
+      alert("Registration successful!");
+    }
   };
 
   return (
@@ -22,6 +35,7 @@ export default function SignUp() {
             value={form.name}
             onChange={e => setForm({ ...form, name: e.target.value })}
             className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+            required
           />
           <input
             type="email"
@@ -29,6 +43,7 @@ export default function SignUp() {
             value={form.email}
             onChange={e => setForm({ ...form, email: e.target.value })}
             className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+            required
           />
           <input
             type="password"
@@ -36,7 +51,19 @@ export default function SignUp() {
             value={form.password}
             onChange={e => setForm({ ...form, password: e.target.value })}
             className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+            required
           />
+
+          {/* Optional: role selection */}
+          <select
+            value={form.role}
+            onChange={e => setForm({ ...form, role: e.target.value })}
+            className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+          >
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+          </select>
+
           <button
             type="submit"
             className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
@@ -45,7 +72,10 @@ export default function SignUp() {
           </button>
         </form>
         <p className="text-center text-sm text-gray-600 mt-4">
-          Already have an account? <a href="/login" className="text-blue-600 font-semibold hover:underline">Login</a>
+          Already have an account?{" "}
+          <a href="/login" className="text-blue-600 font-semibold hover:underline">
+            Login
+          </a>
         </p>
       </div>
     </div>

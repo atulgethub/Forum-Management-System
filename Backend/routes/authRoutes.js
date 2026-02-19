@@ -2,14 +2,17 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
-const passport = require('passport'); // Keep for login only
+const passport = require('passport'); // For login
 
 // ==================
-// REGISTER (NO PASSPORT NEEDED)
+// REGISTER (with role support)
 // ==================
 router.post('/register', async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, role } = req.body;
+
+    // Default role is 'user' if not provided
+    const userRole = role && role === 'admin' ? 'admin' : 'user';
 
     // Check if user exists
     const userExists = await User.findOne({ email });
@@ -18,11 +21,11 @@ router.post('/register', async (req, res) => {
     }
 
     // Create user
-    const user = new User({ name, email, password });
+    const user = new User({ name, email, password, role: userRole });
     await user.save();
 
     // Generate JWT token
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
       expiresIn: '30d',
     });
 
@@ -54,8 +57,8 @@ router.post('/login', (req, res, next) => {
       return res.status(400).json({ message: info?.message || 'Invalid credentials' });
     }
 
-    // Generate JWT token
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+    // Generate JWT token including role
+    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
       expiresIn: '30d',
     });
 
@@ -69,7 +72,7 @@ router.post('/login', (req, res, next) => {
         role: user.role,
       },
     });
-  })(req, res, next); // ✅ This passes next() correctly
+  })(req, res, next);
 });
 
 // ==================

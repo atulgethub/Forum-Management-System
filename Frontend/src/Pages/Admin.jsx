@@ -1,14 +1,28 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import API from "../api/axios";
+import { AuthContext } from "../context/AuthContext";
 
 export default function Admin() {
+  const { user, loading } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
-    API.get("/admin/users")
-      .then(res => setUsers(res.data))
-      .catch(err => console.error(err));
-  }, []);
+    if (!loading) {
+      if (!user || user.role !== "admin") {
+        alert("Access denied. Admins only.");
+        navigate("/"); // redirect non-admins
+        return;
+      }
+
+      API.get("/admin/users")
+        .then(res => setUsers(res.data))
+        .catch(err => console.error(err));
+    }
+  }, [user, loading, navigate]);
+
+  if (loading) return <p>Loading...</p>;
 
   return (
     <div className="bg-white shadow-md rounded-xl p-6">
