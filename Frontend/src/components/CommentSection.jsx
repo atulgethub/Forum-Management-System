@@ -1,11 +1,24 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
 
 const CommentSection = ({ postId }) => {
-  const { user } = useContext(AuthContext); // currently logged-in user
+  const { user } = useContext(AuthContext);
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState([]);
+
+  // Fetch comments when component mounts
+  useEffect(() => {
+    const fetchComments = async () => {
+      try {
+        const res = await axios.get(`http://localhost:5000/api/comments/${postId}`);
+        setComments(res.data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    fetchComments();
+  }, [postId]);
 
   const addComment = async () => {
     if (!user) return alert("Please login to comment");
@@ -14,10 +27,10 @@ const CommentSection = ({ postId }) => {
       const res = await axios.post("http://localhost:5000/api/comments", {
         postId,
         text: comment,
-        author: user._id, // 👈 send logged-in user id
+        author: user._id,
       });
 
-      setComments([...comments, res.data]);
+      setComments([res.data, ...comments]); // newest first
       setComment("");
     } catch (err) {
       console.log(err);
@@ -43,7 +56,11 @@ const CommentSection = ({ postId }) => {
       <div className="mt-4 space-y-2">
         {comments.map((c) => (
           <div key={c._id} className="p-2 border rounded bg-gray-50">
-            <strong>{c.author.name || "User"}:</strong> {c.text}
+            <div className="flex justify-between text-sm text-gray-500">
+              <strong>{c.author?.name || "User"}</strong>
+              <span>{new Date(c.createdAt).toLocaleString()}</span>
+            </div>
+            <p className="mt-1">{c.text}</p>
           </div>
         ))}
       </div>
