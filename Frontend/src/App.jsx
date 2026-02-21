@@ -5,14 +5,15 @@ import { AuthContext } from "./context/AuthContext";
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
 
-import Home from "./pages/Home";
-import Login from "./pages/Login";
+
 import SignUp from "./pages/SignUp";
 import Profile from "./pages/Profile";
 import CreatePost from "./pages/CreatePost";
 import EditPost from "./pages/EditPost";
 import PostDetails from "./pages/PostDetails";
 import Admin from "./pages/Admin";
+import Login from "./Pages/Login";
+import Home from "./Pages/Home";
 
 // Layout wrapper for authenticated pages
 const MainLayout = ({ children }) => {
