@@ -10,16 +10,20 @@ const MainLayout = () => {
       <Navbar />
 
       {/* Content Area */}
-      <div className="flex flex-1 max-w-7xl mx-auto w-full px-4 py-6 gap-6">
+      <div className="flex flex-1 w-full max-w-7xl mx-auto px-4 py-6 gap-6">
 
         {/* Sidebar */}
-        <aside className="hidden md:block w-1/4">
-          <Sidebar />
+        <aside className="hidden md:block w-64">
+          <div className="bg-white shadow-md rounded-lg p-4 h-full">
+            <Sidebar />
+          </div>
         </aside>
 
         {/* Main Content */}
-        <main className="w-full md:w-3/4">
-          <Outlet />
+        <main className="flex-1">
+          <div className="bg-white shadow-md rounded-lg p-6">
+            <Outlet />
+          </div>
         </main>
 
       </div>

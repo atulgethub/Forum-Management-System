@@ -15,12 +15,10 @@ import Home from "./Pages/Home";
 import Profile from "./pages/Profile";
 import CreatePost from "./pages/CreatePost";
 import EditPost from "./pages/EditPost";
+import PostDetails from "./pages/user/PostDetails";
+import MyPosts from "./pages/user/MyPosts"; // 🔥 ADD THIS
 
 // Admin Pages
-
-
-
-import PostDetails from "./pages/user/PostDetails";
 import Dashboard from "./pages/admin/Dashboard";
 import UserManagement from "./pages/admin/UserManagement";
 import ViewForums from "./pages/admin/ViewForums";
@@ -45,7 +43,7 @@ const App = () => {
           <Route index element={<Navigate to="dashboard" />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="forums" element={<ViewForums />} />
-          <Route path="users" element={<UserManagement />}/>
+          <Route path="users" element={<UserManagement />} />
           <Route path="approve" element={<ForumApprove />} />
 
         </Route>
@@ -56,6 +54,7 @@ const App = () => {
         <Route path="/" element={<MainLayout />}>
 
           <Route index element={<Home />} />
+          <Route path="my-posts" element={<MyPosts />} /> {/* 🔥 ADD HERE */}
           <Route path="profile" element={<Profile />} />
           <Route path="create" element={<CreatePost />} />
           <Route path="edit/:id" element={<EditPost />} />
@@ -67,7 +66,17 @@ const App = () => {
       {/* ================= FALLBACK ================= */}
       <Route
         path="*"
-        element={<Navigate to={user ? (user.role === "admin" ? "/admin" : "/") : "/login"} />}
+        element={
+          <Navigate
+            to={
+              user
+                ? user.role === "admin"
+                  ? "/admin"
+                  : "/"
+                : "/login"
+            }
+          />
+        }
       />
 
     </Routes>

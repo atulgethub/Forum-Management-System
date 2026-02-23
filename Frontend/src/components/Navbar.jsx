@@ -8,30 +8,54 @@ const Navbar = () => {
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+
         {/* Logo */}
         <Link to="/" className="text-2xl font-bold text-blue-600">
           ForumSystem
         </Link>
 
         {/* Links */}
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-5">
+
           <Link to="/" className="text-gray-700 hover:text-blue-600 transition">
             Home
           </Link>
 
           {user && (
             <>
-              <Link to="/create" className="text-gray-700 hover:text-blue-600 transition">
+              {/* 🔥 My Posts */}
+              <Link
+                to="/my-posts"
+                className="text-gray-700 hover:text-blue-600 transition"
+              >
+                My Posts
+              </Link>
+
+              <Link
+                to="/create"
+                className="text-gray-700 hover:text-blue-600 transition"
+              >
                 Create
               </Link>
-              <Link to="/profile" className="text-gray-700 hover:text-blue-600 transition">
+
+              <Link
+                to="/profile"
+                className="text-gray-700 hover:text-blue-600 transition"
+              >
                 Profile
               </Link>
+
+              {/* Admin Link */}
               {user.role === "admin" && (
-                <Link to="/admin" className="text-gray-700 hover:text-blue-600 transition">
+                <Link
+                  to="/admin"
+                  className="text-gray-700 hover:text-blue-600 transition"
+                >
                   Admin
                 </Link>
               )}
+
+              {/* Logout */}
               <button
                 onClick={logout}
                 className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 transition"
@@ -49,6 +73,7 @@ const Navbar = () => {
               Login
             </Link>
           )}
+
         </div>
       </div>
     </nav>

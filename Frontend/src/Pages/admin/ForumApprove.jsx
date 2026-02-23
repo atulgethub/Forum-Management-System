@@ -1,18 +1,19 @@
 import { useEffect, useState } from "react";
 import API from "../../api/axios";
 
-const ViewForums = () => {
+const ForumApprove = () => {
   const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   const fetchPosts = async () => {
     try {
       const res = await API.get("/admin/posts");
-      setPosts(res.data);
+
+      // Only pending posts
+      const pending = res.data.filter((p) => !p.isApproved);
+
+      setPosts(pending);
     } catch (error) {
-      console.error("Error fetching posts:", error.response?.data || error);
-    } finally {
-      setLoading(false);
+      console.error("Error fetching posts:", error);
     }
   };
 
@@ -20,65 +21,38 @@ const ViewForums = () => {
     fetchPosts();
   }, []);
 
-  // 🔥 APPROVE / UNAPPROVE
-  const handleApprove = async (id) => {
+  const approvePost = async (id) => {
     try {
-      await API.put(`/admin/posts/approve/${id}`);
-      fetchPosts(); // refresh after update
+      await API.put(`/admin/posts/approve/${id}`); // ✅ Correct endpoint
+      fetchPosts(); // refresh list
     } catch (error) {
-      console.error("Error approving post:", error.response?.data || error);
+      console.error("Error approving post:", error);
     }
   };
 
-  if (loading) {
-    return <div className="text-center">Loading forums...</div>;
-  }
-
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <h2 className="text-2xl font-bold">All Forums</h2>
+    <div className="max-w-3xl mx-auto space-y-4">
+      <h2 className="text-2xl font-bold">Pending Forums</h2>
 
       {posts.length === 0 ? (
-        <p>No posts available</p>
+        <p className="text-gray-500">No pending posts</p>
       ) : (
         posts.map((post) => (
           <div
             key={post._id}
-            className="bg-white shadow-md rounded-xl p-6"
+            className="bg-white p-4 rounded shadow flex justify-between items-center"
           >
-            <h3 className="text-xl font-semibold mb-2">
+            {/* 🔥 Only Title */}
+            <h3 className="font-semibold text-lg">
               {post.title}
             </h3>
 
-            <p className="text-gray-700 mb-3">
-              {post.content}
-            </p>
-
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-500">
-                By {post.author?.name || "Unknown"}
-              </span>
-
-              <div className="flex items-center gap-3">
-                <span
-                  className={`px-3 py-1 rounded text-white text-xs ${
-                    post.isApproved
-                      ? "bg-green-500"
-                      : "bg-yellow-500"
-                  }`}
-                >
-                  {post.isApproved ? "Published" : "Pending"}
-                </span>
-
-                {/* 🔥 Publish Button */}
-                <button
-                  onClick={() => handleApprove(post._id)}
-                  className="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600"
-                >
-                  {post.isApproved ? "Unpublish" : "Publish"}
-                </button>
-              </div>
-            </div>
+            <button
+              onClick={() => approvePost(post._id)}
+              className="bg-green-600 text-white px-4 py-1 rounded hover:bg-green-700"
+            >
+              Publish
+            </button>
           </div>
         ))
       )}
@@ -86,4 +60,4 @@ const ViewForums = () => {
   );
 };
 
-export default ViewForums;
+export default ForumApprove;
