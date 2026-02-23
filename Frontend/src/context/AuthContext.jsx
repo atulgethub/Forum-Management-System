@@ -1,58 +1,58 @@
 import { createContext, useState, useEffect } from "react";
-import API from "../api/axios"; // your axios instance with baseURL
+import API from "../api/axios";
 import { useNavigate } from "react-router-dom";
 
-// Create AuthContext
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
-  // User state
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true); // useful for protecting routes
+  const [loading, setLoading] = useState(true);
 
-  // On app load: check token and fetch user info
+  // 🔥 Load user on app start
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      // Set Authorization header
-      API.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    const loadUser = async () => {
+      const token = localStorage.getItem("token");
 
-      API.get("/auth/me") // backend route returns current user
-        .then((res) => {
-          setUser(res.data); // res.data should include role
-        })
-        .catch((err) => {
-          console.log("Invalid token or session expired", err);
-          localStorage.removeItem("token");
-          delete API.defaults.headers.common["Authorization"];
-          setUser(null);
-        })
-        .finally(() => setLoading(false));
-    } else {
-      setLoading(false);
-    }
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const res = await API.get("/auth/me");
+        setUser(res.data);
+      } catch (err) {
+        console.log("Session expired or invalid token");
+        localStorage.removeItem("token");
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadUser();
   }, []);
 
-  // Login function
+  // 🔥 LOGIN
   const login = async ({ email, password }) => {
     try {
       const res = await API.post("/auth/login", { email, password });
 
-      // Save token to localStorage
       localStorage.setItem("token", res.data.token);
-
-      // Set axios default header
-      API.defaults.headers.common["Authorization"] = `Bearer ${res.data.token}`;
-
-      // Set user state
       setUser(res.data.user);
 
-      navigate("/"); // redirect to home/dashboard
+      // Redirect based on role
+      if (res.data.user.role === "admin") {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/");
+      }
+
       return { success: true };
+
     } catch (err) {
-      console.error("Login error:", err.response?.data);
       return {
         success: false,
         message: err.response?.data?.message || "Login failed",
@@ -60,20 +60,22 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Register function (accepts optional role for admin creation)
-  const register = async ({ name, email, password, role }) => {
+  // 🔥 REGISTER (NO ROLE SENT)
+  const register = async ({ name, email, password }) => {
     try {
-      const res = await API.post("/auth/register", { name, email, password, role });
+      const res = await API.post("/auth/register", {
+        name,
+        email,
+        password,
+      });
 
       localStorage.setItem("token", res.data.token);
-      API.defaults.headers.common["Authorization"] = `Bearer ${res.data.token}`;
-
       setUser(res.data.user);
 
-      navigate("/"); // redirect to home/dashboard
+      navigate("/");
       return { success: true };
+
     } catch (err) {
-      console.error("Registration error:", err.response?.data);
       return {
         success: false,
         message: err.response?.data?.message || "Registration failed",
@@ -81,16 +83,23 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Logout function
+  // 🔥 LOGOUT
   const logout = () => {
     localStorage.removeItem("token");
-    delete API.defaults.headers.common["Authorization"];
     setUser(null);
     navigate("/login");
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        login,
+        register,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

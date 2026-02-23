@@ -8,15 +8,38 @@ export default function Login() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    const res = await login({ email, password });
-    if (!res.success) {
-      alert(res.message);
-    } else {
-    
+    try {
+      setLoading(true);
+
+      const res = await login({ email, password });
+
+      if (!res.success) {
+        alert(res.message);
+        return;
+      }
+
+      // 🚫 Blocked user check
+      if (res.user?.isBlocked) {
+        alert("Your account is blocked by admin.");
+        return;
+      }
+
+      // 🔀 Role based redirect
+      if (res.user.role === "admin") {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/");
+      }
+
+    } catch (err) {
+      alert("Login failed. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -24,6 +47,7 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 to-indigo-600 px-4">
 
       <div className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-md">
+
         {/* Title */}
         <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
           Login
@@ -31,6 +55,7 @@ export default function Login() {
 
         {/* Form */}
         <form className="space-y-5" onSubmit={handleLogin}>
+
           <div>
             <label className="block text-gray-600 mb-1">Email</label>
             <input
@@ -57,22 +82,29 @@ export default function Login() {
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition font-semibold"
+            disabled={loading}
+            className={`w-full py-2 rounded-lg text-white font-semibold transition ${
+              loading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700"
+            }`}
           >
-            Login
+            {loading ? "Logging in..." : "Login"}
           </button>
+
         </form>
 
         {/* Link to SignUp */}
         <p className="text-center text-sm text-gray-600 mt-4">
           Don't have an account?{" "}
           <Link
-            to="/register"   // <-- Navigate to your SignUp page
+            to="/signup"
             className="text-blue-600 font-semibold hover:underline"
           >
             Sign Up
           </Link>
         </p>
+
       </div>
     </div>
   );

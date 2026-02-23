@@ -1,22 +1,14 @@
 const passport = require("passport");
-const { Strategy: JwtStrategy, ExtractJwt } = require("passport-jwt");
-const User = require("../models/User");
+require("./passport-local")(passport);
 
-const opts = {
-  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: process.env.JWT_SECRET,
-};
+passport.serializeUser((user, done) => {
+  done(null, user.id);
+});
 
-passport.use(
-  new JwtStrategy(opts, async (jwt_payload, done) => {
-    try {
-      const user = await User.findById(jwt_payload.id).select("-password");
-      if (user) return done(null, user);
-      return done(null, false);
-    } catch (err) {
-      return done(err, false);
-    }
-  })
-);
+passport.deserializeUser(async (id, done) => {
+  const User = require("../models/User");
+  const user = await User.findById(id);
+  done(null, user);
+});
 
 module.exports = passport;

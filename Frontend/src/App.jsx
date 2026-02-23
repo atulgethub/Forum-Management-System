@@ -2,37 +2,29 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "./context/AuthContext";
 
-import Navbar from "./components/Navbar";
-import Sidebar from "./components/Sidebar";
+// Layouts
+import AdminLayout from "./layouts/AdminLayout";
+import MainLayout from "./layouts/MainLayout";
 
-
+// Public Pages
+import Login from "./Pages/Login";
 import SignUp from "./pages/SignUp";
+
+// User Pages
+import Home from "./Pages/Home";
 import Profile from "./pages/Profile";
 import CreatePost from "./pages/CreatePost";
 import EditPost from "./pages/EditPost";
-import PostDetails from "./pages/PostDetails";
-import Admin from "./pages/Admin";
-import Login from "./Pages/Login";
-import Home from "./Pages/Home";
 
-// Layout wrapper for authenticated pages
-const MainLayout = ({ children }) => {
-  return (
-    <div className="min-h-screen bg-gray-100">
-      <Navbar />
+// Admin Pages
 
-      <div className="max-w-7xl mx-auto px-4 py-6 grid grid-cols-12 gap-6">
-        {/* Sidebar */}
-        <div className="hidden md:block md:col-span-3">
-          <Sidebar />
-        </div>
 
-        {/* Main content */}
-        <div className="col-span-12 md:col-span-9">{children}</div>
-      </div>
-    </div>
-  );
-};
+
+import PostDetails from "./pages/user/PostDetails";
+import Dashboard from "./pages/admin/Dashboard";
+import UserManagement from "./pages/admin/UserManagement";
+import ViewForums from "./pages/admin/ViewForums";
+import ForumApprove from "./pages/admin/ForumApprove";
 
 const App = () => {
   const { user, loading } = useContext(AuthContext);
@@ -41,76 +33,43 @@ const App = () => {
 
   return (
     <Routes>
-      {/* Public Routes */}
-      <Route
-        path="/login"
-        element={!user ? <Login /> : <Navigate to="/" />}
-      />
-      <Route
-        path="/register"
-        element={!user ? <SignUp /> : <Navigate to="/" />}
-      />
 
-      {/* Protected Routes */}
-      {user && (
-        <>
-          <Route
-            path="/"
-            element={
-              <MainLayout>
-                <Home />
-              </MainLayout>
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              <MainLayout>
-                <Profile />
-              </MainLayout>
-            }
-          />
-          <Route
-            path="/create"
-            element={
-              <MainLayout>
-                <CreatePost />
-              </MainLayout>
-            }
-          />
-          <Route
-            path="/edit/:id"
-            element={
-              <MainLayout>
-                <EditPost />
-              </MainLayout>
-            }
-          />
-          <Route
-            path="/post/:id"
-            element={
-              <MainLayout>
-                <PostDetails />
-              </MainLayout>
-            }
-          />
+      {/* ================= PUBLIC ROUTES ================= */}
+      <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
+      <Route path="/register" element={!user ? <SignUp /> : <Navigate to="/" />} />
 
-          {/* Admin-only route */}
-          {user.role === "admin" && (
-            <Route
-              path="/admin"
-              element={
-                <MainLayout>
-                  <Admin />
-                </MainLayout>
-              }
-            />
-          )}
-        </>
+      {/* ================= ADMIN ROUTES ================= */}
+      {user?.role === "admin" && (
+        <Route path="/admin" element={<AdminLayout />}>
+
+          <Route index element={<Navigate to="dashboard" />} />
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="forums" element={<ViewForums />} />
+          <Route path="users" element={<UserManagement />}/>
+          <Route path="approve" element={<ForumApprove />} />
+
+        </Route>
       )}
 
-      {/* Catch-all */}
-      <Route path="*" element={<Navigate to={user ? "/" : "/login"} />} />
+      {/* ================= USER ROUTES ================= */}
+      {user?.role === "user" && (
+        <Route path="/" element={<MainLayout />}>
+
+          <Route index element={<Home />} />
+          <Route path="profile" element={<Profile />} />
+          <Route path="create" element={<CreatePost />} />
+          <Route path="edit/:id" element={<EditPost />} />
+          <Route path="post/:id" element={<PostDetails />} />
+
+        </Route>
+      )}
+
+      {/* ================= FALLBACK ================= */}
+      <Route
+        path="*"
+        element={<Navigate to={user ? (user.role === "admin" ? "/admin" : "/") : "/login"} />}
+      />
+
     </Routes>
   );
 };

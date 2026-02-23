@@ -1,50 +1,41 @@
-import { useEffect, useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import API from "../api/axios";
-import { AuthContext } from "../context/AuthContext";
 
 export default function Admin() {
-  const { user, loading } = useContext(AuthContext);
-  const navigate = useNavigate();
   const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!loading) {
-      if (!user || user.role !== "admin") {
-        alert("Access denied. Admins only.");
-        navigate("/"); // redirect non-admins
-        return;
+    const fetchUsers = async () => {
+      try {
+        const res = await API.get("/admin/users");
+        setUsers(res.data.users || []); // safe fallback
+      } catch (error) {
+        console.error("Failed to fetch users:", error);
+      } finally {
+        setLoading(false);
       }
+    };
 
-      API.get("/admin/users")
-        .then(res => setUsers(res.data))
-        .catch(err => console.error(err));
-    }
-  }, [user, loading, navigate]);
+    fetchUsers();
+  }, []);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <p>Loading users...</p>;
 
   return (
-    <div className="bg-white shadow-md rounded-xl p-6">
-      <h2 className="text-2xl font-semibold mb-4">Admin Dashboard</h2>
-      <table className="w-full border-collapse">
-        <thead>
-          <tr className="bg-gray-100">
-            <th className="border px-4 py-2">Name</th>
-            <th className="border px-4 py-2">Email</th>
-            <th className="border px-4 py-2">Role</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map(u => (
-            <tr key={u._id}>
-              <td className="border px-4 py-2">{u.name}</td>
-              <td className="border px-4 py-2">{u.email}</td>
-              <td className="border px-4 py-2">{u.role}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div>
+      <h2 className="text-2xl font-bold mb-4">Admin Dashboard</h2>
+
+      {users.length === 0 ? (
+        <p>No users found</p>
+      ) : (
+        users.map((user) => (
+          <div key={user._id} className="p-3 border rounded mb-2">
+            <p><strong>{user.name}</strong></p>
+            <p>{user.email}</p>
+          </div>
+        ))
+      )}
     </div>
   );
 }
