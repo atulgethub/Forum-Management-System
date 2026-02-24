@@ -65,25 +65,6 @@ const UserManagement = () => {
         </div>
       ))}
 
-      <div className="mt-4">
-        <button
-          disabled={page === 1}
-          onClick={() => setPage(page - 1)}
-          className="mr-2"
-        >
-          Prev
-        </button>
-
-        Page {page} of {totalPages}
-
-        <button
-          disabled={page === totalPages}
-          onClick={() => setPage(page + 1)}
-          className="ml-2"
-        >
-          Next
-        </button>
-      </div>
     </div>
   );
 };

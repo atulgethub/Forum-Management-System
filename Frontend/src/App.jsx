@@ -7,40 +7,54 @@ import AdminLayout from "./layouts/AdminLayout";
 import MainLayout from "./layouts/MainLayout";
 
 // Public Pages
-import Login from "./Pages/Login";
+
 import SignUp from "./pages/SignUp";
 
 // User Pages
-import Home from "./Pages/Home";
+import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import CreatePost from "./pages/CreatePost";
 import EditPost from "./pages/EditPost";
 import PostDetails from "./pages/user/PostDetails";
-import MyPosts from "./pages/user/MyPosts"; // 🔥 ADD THIS
+import MyPosts from "./pages/user/MyPosts";
 
 // Admin Pages
 import Dashboard from "./pages/admin/Dashboard";
 import UserManagement from "./pages/admin/UserManagement";
 import ViewForums from "./pages/admin/ViewForums";
 import ForumApprove from "./pages/admin/ForumApprove";
+import Login from "./Pages/Login";
+
+
+
+
 
 const App = () => {
   const { user, loading } = useContext(AuthContext);
 
-  if (loading) return <p className="text-center mt-10">Loading...</p>;
+  if (loading) {
+    return <p className="text-center mt-10">Loading...</p>;
+  }
 
   return (
     <Routes>
 
       {/* ================= PUBLIC ROUTES ================= */}
-      <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
-      <Route path="/register" element={!user ? <SignUp /> : <Navigate to="/" />} />
+      <Route
+        path="/login"
+        element={!user ? <Login />: <Navigate to="/" replace />}
+      />
+
+      <Route
+        path="/register"
+        element={!user ? <SignUp /> : <Navigate to="/" replace />}
+      />
 
       {/* ================= ADMIN ROUTES ================= */}
       {user?.role === "admin" && (
         <Route path="/admin" element={<AdminLayout />}>
 
-          <Route index element={<Navigate to="dashboard" />} />
+          <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="forums" element={<ViewForums />} />
           <Route path="users" element={<UserManagement />} />
@@ -54,7 +68,7 @@ const App = () => {
         <Route path="/" element={<MainLayout />}>
 
           <Route index element={<Home />} />
-          <Route path="my-posts" element={<MyPosts />} /> {/* 🔥 ADD HERE */}
+          <Route path="my-posts" element={<MyPosts />} />
           <Route path="profile" element={<Profile />} />
           <Route path="create" element={<CreatePost />} />
           <Route path="edit/:id" element={<EditPost />} />
@@ -63,7 +77,7 @@ const App = () => {
         </Route>
       )}
 
-      {/* ================= FALLBACK ================= */}
+      {/* ================= DEFAULT REDIRECT ================= */}
       <Route
         path="*"
         element={
@@ -71,10 +85,11 @@ const App = () => {
             to={
               user
                 ? user.role === "admin"
-                  ? "/admin"
+                  ? "/admin/dashboard"
                   : "/"
                 : "/login"
             }
+            replace
           />
         }
       />

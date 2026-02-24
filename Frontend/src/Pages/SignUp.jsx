@@ -17,13 +17,13 @@ export default function SignUp() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    try {
-      setLoading(true);
+    setLoading(true);
 
+    try {
       const res = await register(form);
 
-      if (!res.success) {
-        alert(res.message);
+      if (!res?.success) {
+        alert(res?.message || "Registration failed");
         return;
       }
 
@@ -31,6 +31,7 @@ export default function SignUp() {
       navigate("/login");
 
     } catch (err) {
+      console.error(err);
       alert("Registration failed. Try again.");
     } finally {
       setLoading(false);
@@ -51,8 +52,10 @@ export default function SignUp() {
             type="text"
             placeholder="Name"
             value={form.name}
-            onChange={e => setForm({ ...form, name: e.target.value })}
-            className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+            onChange={(e) =>
+              setForm({ ...form, name: e.target.value })
+            }
+            className="w-full border rounded-lg px-4 py-2"
             required
           />
 
@@ -60,8 +63,10 @@ export default function SignUp() {
             type="email"
             placeholder="Email"
             value={form.email}
-            onChange={e => setForm({ ...form, email: e.target.value })}
-            className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+            onChange={(e) =>
+              setForm({ ...form, email: e.target.value })
+            }
+            className="w-full border rounded-lg px-4 py-2"
             required
           />
 
@@ -69,26 +74,24 @@ export default function SignUp() {
             type="password"
             placeholder="Password"
             value={form.password}
-            onChange={e => setForm({ ...form, password: e.target.value })}
-            className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+            onChange={(e) =>
+              setForm({ ...form, password: e.target.value })
+            }
+            className="w-full border rounded-lg px-4 py-2"
             required
           />
 
           <button
             type="submit"
             disabled={loading}
-            className={`w-full py-2 rounded-lg text-white transition ${
-              loading
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700"
-            }`}
+            className="w-full bg-blue-600 text-white py-2 rounded-lg"
           >
             {loading ? "Registering..." : "Register"}
           </button>
 
         </form>
 
-        <p className="text-center text-sm text-gray-600 mt-4">
+        <p className="text-center text-sm mt-4">
           Already have an account?{" "}
           <Link
             to="/login"

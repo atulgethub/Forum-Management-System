@@ -1,37 +1,44 @@
-const router = require("express").Router();
+const express = require("express");
+const router = express.Router();
+const { protect } = require("../middleware/authMiddleware");
 const Comment = require("../models/Comment");
 
-// Create Comment
-router.post("/", async (req, res) => {
+// ➜ CREATE COMMENT
+router.post("/", protect, async (req, res) => {
   try {
-    const { postId, text, author } = req.body;
+    const { postId, text } = req.body;
 
-    if (!author) return res.status(400).json({ message: "Author is required" });
-    if (!text) return res.status(400).json({ message: "Comment text required" });
+    if (!text) {
+      return res.status(400).json({ message: "Comment cannot be empty" });
+    }
 
-    const comment = await Comment.create({ postId, author, text });
+    const comment = await Comment.create({
+      postId,
+      text,
+      author: req.user._id,
+    });
 
-    // Populate author before sending
-    const populatedComment = await comment.populate("author", "name email"); 
-    res.status(201).json(populatedComment);
+    const populated = await comment.populate("author", "name email");
+
+    res.status(201).json(populated);
 
   } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: "Failed to add comment", error: err });
+    res.status(500).json({ message: "Failed to add comment" });
   }
 });
 
-// Get comments for a post
+
+// ➜ GET COMMENTS BY POST
 router.get("/:postId", async (req, res) => {
   try {
     const comments = await Comment.find({ postId: req.params.postId })
-      .populate("author", "name email") // populate author info
+      .populate("author", "name email")
       .sort({ createdAt: -1 });
 
-    res.status(200).json(comments);
+    res.json(comments);
+
   } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: "Failed to fetch comments", error: err });
+    res.status(500).json({ message: "Failed to fetch comments" });
   }
 });
 
