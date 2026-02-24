@@ -2,7 +2,7 @@ import PostCard from "../../components/PostCard";
 import { useEffect, useState } from "react";
 import API from "../../api/axios";
 
-export default function Home() {
+export default function Home(){
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 

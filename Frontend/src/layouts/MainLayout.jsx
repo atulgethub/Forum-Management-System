@@ -1,29 +1,43 @@
+import { useState } from "react";
 import { Outlet } from "react-router-dom";
-import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
+import Navbar from "../components/Navbar";
 
 const MainLayout = () => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col">
+    <div className="h-screen flex bg-gray-100 overflow-hidden">
 
-      {/* Navbar */}
-      <Navbar />
+      {/* ===== Mobile Overlay ===== */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 z-40 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
 
-      {/* Content Area */}
-      <div className="flex flex-1 w-full max-w-7xl mx-auto px-4 py-6 gap-6">
+      {/* ===== Sidebar ===== */}
+      <div
+        className={`
+          fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 text-white
+          transform transition-transform duration-300 ease-in-out
+          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
+          md:translate-x-0 md:static md:inset-0
+        `}
+      >
+        <Sidebar closeSidebar={() => setSidebarOpen(false)} />
+      </div>
 
-        {/* Sidebar */}
-        <aside className="hidden md:block w-64">
-          <div className="bg-white shadow-md rounded-lg p-4 h-full">
-            <Sidebar />
-          </div>
-        </aside>
+      {/* ===== Main Section ===== */}
+      <div className="flex-1 flex flex-col">
 
-        {/* Main Content */}
-        <main className="flex-1">
-          <div className="bg-white shadow-md rounded-lg p-6">
-            <Outlet />
-          </div>
+        {/* Navbar */}
+        <Navbar toggleSidebar={() => setSidebarOpen(true)} />
+
+        {/* Scrollable Content */}
+        <main className="flex-1 overflow-y-auto p-4 md:p-6">
+          <Outlet />
         </main>
 
       </div>

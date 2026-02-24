@@ -1,82 +1,41 @@
-import { Link } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 
-const Navbar = () => {
+const Navbar = ({ toggleSidebar }) => {
   const { user, logout } = useContext(AuthContext);
 
   return (
-    <nav className="bg-white shadow-md sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+    <div className="sticky top-0 z-30 bg-white shadow px-4 md:px-6 py-4 flex items-center justify-between">
 
-        {/* Logo */}
-        <Link to="/" className="text-2xl font-bold text-blue-600">
-          ForumSystem
-        </Link>
+      {/* Left Section */}
+      <div className="flex items-center gap-4">
+        {/* Hamburger (mobile only) */}
+        <button
+          onClick={toggleSidebar}
+          className="md:hidden text-2xl font-bold"
+        >
+          ☰
+        </button>
 
-        {/* Links */}
-        <div className="flex items-center gap-5">
-
-          <Link to="/" className="text-gray-700 hover:text-blue-600 transition">
-            Home
-          </Link>
-
-          {user && (
-            <>
-              {/* 🔥 My Posts */}
-              <Link
-                to="/my-posts"
-                className="text-gray-700 hover:text-blue-600 transition"
-              >
-                My Posts
-              </Link>
-
-              <Link
-                to="/create"
-                className="text-gray-700 hover:text-blue-600 transition"
-              >
-                Create
-              </Link>
-
-              <Link
-                to="/profile"
-                className="text-gray-700 hover:text-blue-600 transition"
-              >
-                Profile
-              </Link>
-
-              {/* Admin Link */}
-              {user.role === "admin" && (
-                <Link
-                  to="/admin"
-                  className="text-gray-700 hover:text-blue-600 transition"
-                >
-                  Admin
-                </Link>
-              )}
-
-              {/* Logout */}
-              <button
-                onClick={logout}
-                className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 transition"
-              >
-                Logout
-              </button>
-            </>
-          )}
-
-          {!user && (
-            <Link
-              to="/login"
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
-            >
-              Login
-            </Link>
-          )}
-
-        </div>
+        <h1 className="text-lg md:text-xl font-semibold">
+          Dashboard
+        </h1>
       </div>
-    </nav>
+
+      {/* Right Section */}
+      <div className="flex items-center gap-4">
+        <span className="hidden sm:block text-gray-600 font-medium">
+          {user?.name}
+        </span>
+
+        <button
+          onClick={logout}
+          className="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg transition"
+        >
+          Logout
+        </button>
+      </div>
+    </div>
   );
 };
 

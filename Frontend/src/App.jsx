@@ -3,31 +3,31 @@ import { useContext } from "react";
 import { AuthContext } from "./context/AuthContext";
 
 // Layouts
-import AdminLayout from "./layouts/AdminLayout";
-import MainLayout from "./layouts/MainLayout";
+
 
 // Public Pages
-
+import Login from "./Pages/Login";
 import SignUp from "./pages/SignUp";
 
 // User Pages
-import Home from "./pages/Home";
-import Profile from "./pages/Profile";
-import CreatePost from "./pages/CreatePost";
-import EditPost from "./pages/EditPost";
-import PostDetails from "./pages/user/PostDetails";
-import MyPosts from "./pages/user/MyPosts";
+
+
 
 // Admin Pages
 import Dashboard from "./pages/admin/Dashboard";
 import UserManagement from "./pages/admin/UserManagement";
 import ViewForums from "./pages/admin/ViewForums";
 import ForumApprove from "./pages/admin/ForumApprove";
-import Login from "./Pages/Login";
+import AdminLayout from "./layouts/AdminLayout";
+import MainLayout from "./layouts/MainLayout";
+import Profile from "./pages/user/Profile";
+import Home from "./pages/user/Home";
+import MyPosts from "./pages/user/MyPosts";
 
-
-
-
+import PostDetails from "./pages/user/PostDetails";
+import EditPost from "./pages/user/EditPost";
+import CreatePost from "./pages/user/CreatePost";
+import UserDashboard from "./pages/user/UserDashboard";
 
 const App = () => {
   const { user, loading } = useContext(AuthContext);
@@ -42,7 +42,7 @@ const App = () => {
       {/* ================= PUBLIC ROUTES ================= */}
       <Route
         path="/login"
-        element={!user ? <Login />: <Navigate to="/" replace />}
+        element={!user ? <Login /> : <Navigate to="/" replace />}
       />
 
       <Route
@@ -68,9 +68,10 @@ const App = () => {
         <Route path="/" element={<MainLayout />}>
 
           <Route index element={<Home />} />
+          <Route path="userDashboard" element={<UserDashboard />} />
           <Route path="my-posts" element={<MyPosts />} />
           <Route path="profile" element={<Profile />} />
-          <Route path="create" element={<CreatePost />} />
+          <Route path="create-post" element={<CreatePost />} />
           <Route path="edit/:id" element={<EditPost />} />
           <Route path="post/:id" element={<PostDetails />} />
 

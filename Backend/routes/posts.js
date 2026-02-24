@@ -1,22 +1,72 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const router = express.Router();
 const { protect } = require("../middleware/authMiddleware");
+
 const Post = require("../models/Post");
+const Comment = require("../models/Comment");
 
 
 // =====================================================
-// 🔥 GET MY POSTS (ONLY LOGGED-IN USER)
+// 🔥 USER DASHBOARD STATS
+// GET /api/posts/user/stats
+// =====================================================
+router.get("/user/stats", protect, async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const totalPosts = await Post.countDocuments({ author: userId });
+
+    const totalPublished = await Post.countDocuments({
+      author: userId,
+      isApproved: true,
+    });
+
+    const totalPending = await Post.countDocuments({
+      author: userId,
+      isApproved: false,
+    });
+
+    const totalComments = await Comment.countDocuments({
+      author: userId,
+    });
+
+    const recentPosts = await Post.find({ author: userId })
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .populate("author", "name email");
+
+    res.json({
+      totalPosts,
+      totalPublished,
+      totalPending,
+      totalComments,
+      recentPosts,
+    });
+
+  } catch (err) {
+    console.error("Stats error:", err);
+    res.status(500).json({ message: "Failed to fetch stats" });
+  }
+});
+
+
+// =====================================================
+// 🔥 GET MY POSTS
+// GET /api/posts/my
 // =====================================================
 router.get("/my", protect, async (req, res) => {
   try {
     const posts = await Post.find({
-      author: req.user._id,   // 👈 ONLY THIS USER
+      author: req.user._id,
     })
-      .populate("author", "name email")
+      .populate("author", "name email") // 🔥 include email
       .sort({ createdAt: -1 });
 
     res.json(posts);
+
   } catch (err) {
+    console.error("My posts error:", err);
     res.status(500).json({ message: "Failed to fetch your posts" });
   }
 });
@@ -24,15 +74,18 @@ router.get("/my", protect, async (req, res) => {
 
 // =====================================================
 // 🔥 GET ALL APPROVED POSTS (PUBLIC)
+// GET /api/posts
 // =====================================================
 router.get("/", async (req, res) => {
   try {
     const posts = await Post.find({ isApproved: true })
-      .populate("author", "name email")
+      .populate("author", "name email") // 🔥 include email
       .sort({ createdAt: -1 });
 
     res.json(posts);
+
   } catch (err) {
+    console.error("Fetch posts error:", err);
     res.status(500).json({ message: "Failed to fetch posts" });
   }
 });
@@ -40,6 +93,7 @@ router.get("/", async (req, res) => {
 
 // =====================================================
 // 🔥 CREATE POST (DEFAULT = PENDING)
+// POST /api/posts
 // =====================================================
 router.post("/", protect, async (req, res) => {
   try {
@@ -47,7 +101,7 @@ router.post("/", protect, async (req, res) => {
 
     if (!title || !content) {
       return res.status(400).json({
-        message: "Title and content required",
+        message: "Title and content are required",
       });
     }
 
@@ -55,25 +109,35 @@ router.post("/", protect, async (req, res) => {
       title,
       content,
       author: req.user._id,
-      isApproved: false, // 👈 IMPORTANT
+      isApproved: false,
     });
 
     res.status(201).json(post);
+
   } catch (err) {
+    console.error("Create post error:", err);
     res.status(500).json({ message: "Failed to create post" });
   }
 });
 
 
 // =====================================================
-// 🔥 GET SINGLE APPROVED POST ONLY
+// 🔥 GET SINGLE APPROVED POST
+// GET /api/posts/:id
 // =====================================================
 router.get("/:id", async (req, res) => {
   try {
+    const { id } = req.params;
+
+    // ✅ prevent crash if invalid id
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid post ID" });
+    }
+
     const post = await Post.findOne({
-      _id: req.params.id,
-      isApproved: true,  // 👈 Only published
-    }).populate("author", "name email");
+      _id: id,
+      isApproved: true,
+    }).populate("author", "name email"); // 🔥 MUST include email
 
     if (!post) {
       return res.status(404).json({
@@ -82,9 +146,12 @@ router.get("/:id", async (req, res) => {
     }
 
     res.json(post);
+
   } catch (err) {
+    console.error("Single post error:", err);
     res.status(500).json({ message: "Failed to fetch post" });
   }
 });
+
 
 module.exports = router;
