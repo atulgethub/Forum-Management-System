@@ -10,7 +10,8 @@ const Post = require("../models/Post");
 
 
 // =========================================================
-// 🔥 DASHBOARD STATS (OPTIONAL BUT RECOMMENDED)
+// 🔥 DASHBOARD STATS
+// Endpoint: GET /api/admin/stats
 // =========================================================
 router.get("/stats", protect, admin, async (req, res) => {
   try {
@@ -39,10 +40,9 @@ router.get("/stats", protect, admin, async (req, res) => {
 
 
 // =========================================================
-// 🔥 POSTS MANAGEMENT
+// 🔥 GET ALL POSTS (ADMIN)
+// Endpoint: GET /api/admin/posts
 // =========================================================
-
-// GET ALL POSTS (ADMIN)
 router.get("/posts", protect, admin, async (req, res) => {
   try {
     const posts = await Post.find()
@@ -50,15 +50,20 @@ router.get("/posts", protect, admin, async (req, res) => {
       .sort({ createdAt: -1 });
 
     res.json(posts);
+
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch posts" });
   }
 });
 
 
-// APPROVE / UNAPPROVE POST
+// =========================================================
+// 🔥 APPROVE / UNAPPROVE POST
+// Endpoint: PUT /api/admin/posts/approve/:id
+// =========================================================
 router.put("/posts/approve/:id", protect, admin, async (req, res) => {
   try {
+
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(400).json({ message: "Invalid post ID" });
     }
@@ -83,9 +88,13 @@ router.put("/posts/approve/:id", protect, admin, async (req, res) => {
 });
 
 
-// DELETE POST
+// =========================================================
+// 🔥 DELETE POST
+// Endpoint: DELETE /api/admin/posts/:id
+// =========================================================
 router.delete("/posts/:id", protect, admin, async (req, res) => {
   try {
+
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(400).json({ message: "Invalid post ID" });
     }
@@ -98,7 +107,7 @@ router.delete("/posts/:id", protect, admin, async (req, res) => {
 
     await post.deleteOne();
 
-    res.json({ success: true });
+    res.json({ success: true, message: "Post deleted" });
 
   } catch (error) {
     res.status(500).json({ message: "Failed to delete post" });
@@ -110,9 +119,10 @@ router.delete("/posts/:id", protect, admin, async (req, res) => {
 // 🔥 USERS MANAGEMENT
 // =========================================================
 
-// GET USERS (Search + Pagination)
+// GET USERS
 router.get("/users", protect, admin, async (req, res) => {
   try {
+
     const page = parseInt(req.query.page) || 1;
     const limit = 5;
     const search = req.query.search || "";
@@ -149,6 +159,7 @@ router.get("/users", protect, admin, async (req, res) => {
 // UPDATE USER
 router.put("/users/:id", protect, admin, async (req, res) => {
   try {
+
     const user = await User.findById(req.params.id);
 
     if (!user || user.role === "admin") {
@@ -171,6 +182,7 @@ router.put("/users/:id", protect, admin, async (req, res) => {
 // DELETE USER
 router.delete("/users/:id", protect, admin, async (req, res) => {
   try {
+
     const user = await User.findById(req.params.id);
 
     if (!user || user.role === "admin") {
@@ -179,7 +191,7 @@ router.delete("/users/:id", protect, admin, async (req, res) => {
 
     await user.deleteOne();
 
-    res.json({ success: true });
+    res.json({ success: true, message: "User deleted" });
 
   } catch (error) {
     res.status(500).json({ message: "Failed to delete user" });
@@ -190,6 +202,7 @@ router.delete("/users/:id", protect, admin, async (req, res) => {
 // BLOCK / UNBLOCK USER
 router.put("/users/block/:id", protect, admin, async (req, res) => {
   try {
+
     const user = await User.findById(req.params.id);
 
     if (!user || user.role === "admin") {

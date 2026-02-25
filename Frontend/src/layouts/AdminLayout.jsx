@@ -7,17 +7,19 @@ const AdminLayout = () => {
   const { logout } = useContext(AuthContext);
 
   const handleLogout = () => {
-    logout();          // remove token + user state
-    navigate("/login"); // redirect to login
+    logout();
+    navigate("/login");
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="min-h-screen flex bg-gray-100">
 
-      {/* Sidebar */}
+      {/* ================= Sidebar ================= */}
       <aside className="w-64 bg-gray-900 text-white fixed h-full p-6 flex flex-col">
 
-        <h1 className="text-2xl font-bold mb-8">Admin Panel</h1>
+        <h1 className="text-2xl font-bold mb-8">
+          Admin Panel
+        </h1>
 
         <nav className="flex flex-col space-y-2 flex-1">
 
@@ -65,9 +67,20 @@ const AdminLayout = () => {
             Forum Approve
           </NavLink>
 
+          <NavLink
+            to="/admin/delete-posts"
+            className={({ isActive }) =>
+              `py-2 px-4 rounded transition ${
+                isActive ? "bg-gray-700" : "hover:bg-gray-700"
+              }`
+            }
+          >
+            Delete Posts
+          </NavLink>
+
         </nav>
 
-        {/* 🔥 Logout Button */}
+        {/* Logout */}
         <button
           onClick={handleLogout}
           className="mt-6 bg-red-600 hover:bg-red-700 py-2 px-4 rounded transition"
@@ -77,7 +90,7 @@ const AdminLayout = () => {
 
       </aside>
 
-      {/* Main Content */}
+      {/* ================= Main Content ================= */}
       <main className="flex-1 ml-64 p-8 overflow-auto">
         <Outlet />
       </main>

@@ -28,6 +28,7 @@ import PostDetails from "./pages/user/PostDetails";
 import EditPost from "./pages/user/EditPost";
 import CreatePost from "./pages/user/CreatePost";
 import UserDashboard from "./pages/user/UserDashboard";
+import DeletePosts from "./pages/admin/DeletePosts";
 
 const App = () => {
   const { user, loading } = useContext(AuthContext);
@@ -57,6 +58,7 @@ const App = () => {
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="forums" element={<ViewForums />} />
+          <Route path="delete-posts" element={<DeletePosts />} />
           <Route path="users" element={<UserManagement />} />
           <Route path="approve" element={<ForumApprove />} />
 
