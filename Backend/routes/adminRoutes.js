@@ -9,10 +9,6 @@ const User = require("../models/User");
 const Post = require("../models/Post");
 
 
-// =========================================================
-// 🔥 DASHBOARD STATS
-// Endpoint: GET /api/admin/stats
-// =========================================================
 router.get("/stats", protect, admin, async (req, res) => {
   try {
     const totalPosts = await Post.countDocuments();
